@@ -147,11 +147,10 @@ def get_log_filename(suite1, suite2):
     """Generate log filename based on the two suites being compared"""
     return f"comparison_{suite1}_{suite2}.log"
 
-def log_print(message, log_file=None, end="\n"):
+def log_print(message, log_file, end="\n"):
     """Print to console and log file"""
     print(message,end=end)
-    if log_file:
-        print(message, file=log_file, end=end)
+    print(message, file=log_file, end=end)
 
 def compare_jobs(job1, job2):
     global suite1, suite2
@@ -191,7 +190,7 @@ def compare_jobs(job1, job2):
             if diff:
                 log_print(f"\n--- Difference in file: {f} ---", log_file)
                 for line in diff:
-                    log_print(line, end='', log_file)
+                    log_print(line,  log_file, end='')
                 log_print("", log_file)  # spacing
 
 # def compare_jobs(job1, job2):
