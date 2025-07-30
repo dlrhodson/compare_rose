@@ -77,7 +77,7 @@ def compare_ini_files(file1, file2):
         sections2=tmp
 
     if cylc_flag:
-        print(">> DIFFERENT CYLC versions - allowing equivalent sections names")
+        log_print(">> DIFFERENT CYLC versions - allowing equivalent sections names")
     
     for section in sections1 - sections2:
         diff_result.append(f"Section [{section}] only in {file1}\n")
@@ -139,49 +139,103 @@ def get_suite(job):
     if not 'u-' in job:
         job=os.path.abspath(job)
     if not 'u-' in job:
-        print(f'unknown suite in {job}')
+        log_print(f'unknown suite in {job}')
     suite=job.split('/')[-1] 
     return(suite)
 
+def get_log_filename(suite1, suite2):
+    """Generate log filename based on the two suites being compared"""
+    return f"comparison_{suite1}_{suite2}.log"
+
+def log_print(message, log_file=None):
+    """Print to console and log file"""
+    print(message)
+    if log_file:
+        print(message, file=log_file)
+
 def compare_jobs(job1, job2):
-    global suite1,suite2
+    global suite1, suite2
     
-    suite1=get_suite(job1)
-    suite2=get_suite(job2)
+    suite1 = get_suite(job1)
+    suite2 = get_suite(job2)
+    
+    # Open log file
+    log_filename = get_log_filename(suite1, suite2)
+    with open(log_filename, 'w') as log_file:
+        
+        files1 = list_files(job1)
+        files2 = list_files(job2)
+
+        set1 = set(files1)
+        set2 = set(files2)
+
+        only_in_1 = sorted(set1 - set2)
+        only_in_2 = sorted(set2 - set1)
+        in_both = sorted(set1 & set2)
+
+        log_print("=== Comparison Summary ===", log_file)
+        if only_in_1:
+            log_print(f"\nFiles only in {job1}:", log_file)
+            for f in only_in_1:
+                log_print(f"  - {f}", log_file)
+        if only_in_2:
+            log_print(f"\nFiles only in {job2}:", log_file)
+            for f in only_in_2:
+                log_print(f"  - {f}", log_file)
+
+        log_print("\n=== Differences in Common Files ===", log_file)
+        for f in in_both:
+            path1 = os.path.join(job1, f)
+            path2 = os.path.join(job2, f)
+            diff = compare_files(path1, path2)
+            if diff:
+                log_print(f"\n--- Difference in file: {f} ---", log_file)
+                for line in diff:
+                    log_print(line, end='', log_file)
+                log_print("", log_file)  # spacing
+
+# def compare_jobs(job1, job2):
+#     global suite1,suite2
+    
+#     suite1=get_suite(job1)
+#     suite2=get_suite(job2)
 
 
     
-    files1 = list_files(job1)
-    files2 = list_files(job2)
+#     files1 = list_files(job1)
+#     files2 = list_files(job2)
 
-    set1 = set(files1)
-    set2 = set(files2)
+#     set1 = set(files1)
+#     set2 = set(files2)
 
-    only_in_1 = sorted(set1 - set2)
-    only_in_2 = sorted(set2 - set1)
-    in_both = sorted(set1 & set2)
+#     only_in_1 = sorted(set1 - set2)
+#     only_in_2 = sorted(set2 - set1)
+#     in_both = sorted(set1 & set2)
 
-    print("=== Comparison Summary ===")
-    if only_in_1:
-        print(f"\nFiles only in {job1}:")
-        for f in only_in_1:
-            print(f"  - {f}")
-    if only_in_2:
-        print(f"\nFiles only in {job2}:")
-        for f in only_in_2:
-            print(f"  - {f}")
+#     print("=== Comparison Summary ===")
+#     if only_in_1:
+#         print(f"\nFiles only in {job1}:")
+#         for f in only_in_1:
+#             print(f"  - {f}")
+#     if only_in_2:
+#         print(f"\nFiles only in {job2}:")
+#         for f in only_in_2:
+#             print(f"  - {f}")
 
-    print("\n=== Differences in Common Files ===")
-    for f in in_both:
-        path1 = os.path.join(job1, f)
-        path2 = os.path.join(job2, f)
-        diff = compare_files(path1, path2)
-        if diff:
-            print(f"\n--- Difference in file: {f} ---")
-            for line in diff:
-                print(line, end='')
-            print()  # spacing
+#     print("\n=== Differences in Common Files ===")
+#     for f in in_both:
+#         path1 = os.path.join(job1, f)
+#         path2 = os.path.join(job2, f)
+#         diff = compare_files(path1, path2)
+#         if diff:
+#             print(f"\n--- Difference in file: {f} ---")
+#             for line in diff:
+#                 print(line, end='')
+#             print()  # spacing
 
+
+
+            
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compare two Rose/Cylc jobs.")
     parser.add_argument("job1", help="Path to first job directory")
