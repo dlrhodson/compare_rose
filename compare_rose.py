@@ -6,6 +6,7 @@
 # 29/Jul/2025
 
 import os
+import re
 import difflib
 import argparse
 import configparser
@@ -140,7 +141,11 @@ def get_suite(job):
         job=os.path.abspath(job)
     if not 'u-' in job:
         log_print(f'unknown suite in {job}')
-    suite=job.split('/')[-1] 
+    match = re.search(r'u-[a-z]{2}\d{3}', job)
+    if match:
+        suite=match.group()
+    else:
+        log_print(f'unknown suite in {job}')
     return(suite)
 
 def get_log_filename(suite1, suite2):
