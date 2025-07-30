@@ -149,7 +149,6 @@ def get_log_filename(suite1, suite2):
 
 def log_print(message, log_file=None, end="\n"):
     """Print to console and log file"""
-    if end 
     print(message,end=end)
     if log_file:
         print(message, file=log_file, end=end)
