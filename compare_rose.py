@@ -77,7 +77,7 @@ def compare_ini_files(file1, file2):
         sections2=tmp
 
     if cylc_flag:
-        log_print(">> DIFFERENT CYLC versions - allowing equivalent sections names")
+        log_print(">> DIFFERENT CYLC versions - allowing equivalent sections names",log_file)
     
     for section in sections1 - sections2:
         diff_result.append(f"Section [{section}] only in {file1}\n")
@@ -154,7 +154,7 @@ def log_print(message, log_file, end="\n"):
 
 def compare_jobs(job1, job2):
     global suite1, suite2
-    
+    global log_file
     suite1 = get_suite(job1)
     suite2 = get_suite(job2)
     
