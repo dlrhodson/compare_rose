@@ -199,6 +199,7 @@ def compare_jobs(job1, job2):
                     log_print(line,  log_file, end='')
                 log_print("", log_file)  # spacing
 
+        print(f'Logfile created: {log_filename}')
 # def compare_jobs(job1, job2):
 #     global suite1,suite2
     
